@@ -895,9 +895,12 @@ namespace tuplet {
 
         template <class U, class... B1, class... B2>
         constexpr void _assign_tup(U&& u, type_list<B1...>, type_list<B2...>) {
+            // Not: (void(B1::value = static_cast<U&&>(u).identity_t<B2>::value), ...);
             // See:
             // https://developercommunity.visualstudio.com/t/fold-expressions-unreliable-in-171-with-c20/1676476
-            (void(B1::value = static_cast<U&&>(u).identity_t<B2>::value), ...);
+            // https://github.com/codeinred/tuplet/issues/21
+            // https://github.com/codeinred/tuplet/issues/29
+            (void(B1::value = std::forward<identity_t<B2>>(u).value), ...);
         }
         template <class U, size_t... I>
         constexpr void _assign_index_tup(U&& u, std::index_sequence<I...>) {
